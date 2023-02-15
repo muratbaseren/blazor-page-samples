@@ -1,0 +1,132 @@
+﻿@page "/todoapp"
+@using MFramework.Services.FakeData;
+
+<h3 class="display-4 border-bottom pb-2">Todo App</h3>
+
+<div class="row mt-4">
+    <div class="col">
+        <label class="form-label display-6">New Item</label>
+        <input type="text" class="form-control" @bind="newTodo" placeholder="write something.." />
+        <div class="mt-2"><button class="btn btn-primary btn-sm" type="button" @onclick="AddNew">Add New</button></div>
+    </div>
+    <div class="col">
+        <label class="form-label display-6 @(todos.Any(x => !x.Done) ? "": "invisible")">Undone</label>
+        <ul class="list-group">
+            @foreach (Todo t in todos.Where(x => !x.Done).ToList())
+            {
+                <li class="list-group-item">
+                    @if (!t.Done)
+                    {
+                        <button class="btn btn-primary btn-sm" type="button" @onclick="() => Done(t.Id)"><i class="oi oi-check"></i></button>
+                        <button class="btn btn-danger btn-sm" type="button" @onclick="() => Remove(t.Id)"><i class="oi oi-trash"></i></button>
+
+                        @if (!t.EditMode)
+                        {
+                            <button class="btn btn-warning btn-sm ms-1" type="button" @onclick="() => Edit(t.Id)"><i class="oi oi-pencil text-white"></i></button>
+                        }
+
+                        @if (t.EditMode)
+                        {
+                            <input type="text" class="ms-2" @bind="editTodo" />
+                            <button class="btn btn-success btn-sm" type="button" @onclick="() => OkEdit(t.Id)"><i class="oi oi-check"></i></button>
+                            <button class="btn btn-danger btn-sm" type="button" @onclick="() => CancelEdit(t.Id)"><i class="oi oi-x"></i></button>
+                        }
+                        else
+                        {
+                            <span class="ms-2">@t.Text</span>
+                        }
+                    }
+                </li>
+            }
+        </ul>
+
+        <label class="form-label display-6 mt-3 @(todos.Any(x => x.Done) ? "": "invisible")">Done</label>
+        <ul class="list-group">
+            @foreach (Todo t in todos.Where(x => x.Done).ToList())
+            {
+                <li class="list-group-item">
+                    <button class="btn btn-secondary btn-sm" type="button" @onclick="() => Undo(t.Id)"><i class="oi oi-action-undo"></i></button>
+                    <button class="btn btn-danger btn-sm" type="button" @onclick="() => Remove(t.Id)"><i class="oi oi-trash"></i></button>
+
+                    @if (!t.EditMode)
+                    {
+                        <button class="btn btn-warning btn-sm ms-1" type="button" @onclick="() => Edit(t.Id)"><i class="oi oi-pencil text-white"></i></button>
+                    }
+
+                    @if (t.EditMode)
+                    {
+                        <input type="text" class="ms-2" @bind="editTodo" />
+                        <button class="btn btn-success btn-sm" type="button" @onclick="() => OkEdit(t.Id)"><i class="oi oi-check"></i></button>
+                        <button class="btn btn-danger btn-sm" type="button" @onclick="() => CancelEdit(t.Id)"><i class="oi oi-x"></i></button>
+                    }
+                    else
+                    {
+                        <span class="ms-3 @(t.Done ? "text-decoration-line-through": "")">@t.Text</span>
+                    }
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+@code {
+    private string? newTodo;
+    private string? editTodo;
+    private List<Todo>? todos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        todos = new List<Todo>();
+    }
+
+    private void AddNew()
+    {
+        todos!.Add(new Todo() { Text = newTodo });
+    }
+
+    private void Undo(Guid id)
+    {
+        todos.Find(x => x.Id == id).Done = false;
+    }
+
+    private void Done(Guid id)
+    {
+        todos.Find(x => x.Id == id).Done = true;
+    }
+
+    private void Remove(Guid id)
+    {
+        todos.RemoveAll(x => x.Id == id);
+    }
+    private void Edit(Guid id)
+    {
+        Todo todo = todos.Find(x => x.Id == id);
+        todo.EditMode = true;
+        editTodo = todo.Text;
+    }
+
+    private void OkEdit(Guid id)
+    {
+        Todo todo = todos.Find(x => x.Id == id);
+        todo.EditMode = false;
+        todo.Text = editTodo;
+    }
+
+    private void CancelEdit(Guid id)
+    {
+        Todo todo = todos.Find(x => x.Id == id);
+        todo.EditMode = false;
+        editTodo = null;
+    }
+
+
+
+    public class Todo
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string? Text { get; set; }
+        public bool Done { get; set; }
+
+        public bool EditMode { get; set; }
+    }
+}

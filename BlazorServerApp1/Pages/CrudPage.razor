@@ -1,0 +1,123 @@
+﻿@page "/crudpage"
+
+<PageTitle>CRUD Page</PageTitle>
+
+<h1 class="display-4">CRUD Page</h1>
+
+<input type="text" class="form-control" placeholder="enter a text.." @bind="item" />
+<button class="btn btn-primary btn-sm mt-2" type="button" @onclick="AddNew">Add New</button>
+<hr />
+
+<input type="text" class="form-control" placeholder="search.." @bind="search" @bind:event="oninput" />
+<hr />
+
+<ul class="list-group">
+
+    @foreach (var t in (isSearching ? data2 : data))
+    {
+        <li class="list-group-item" data-id="@t.Key">
+            <button class="btn btn-danger btn-sm me-2" @onclick="() => Remove(t.Key)">remove</button>
+            @if (IsContentEditable(t.Key))
+            {
+                <button class="btn btn-success btn-sm" @onclick="() => Save(t.Key)">save</button>
+                <button class="btn btn-secondary btn-sm" @onclick="() => Cancel()">cancel</button>
+                <input type="text" class="ms-2" @bind="item2">
+            }
+            else
+            {
+                <button class="btn btn-warning btn-sm" @onclick="() => Edit(t.Key)">edit</button>
+                <span class="ms-2">@t.Value</span>
+            }
+        </li>
+    }
+</ul>
+
+@code {
+    private Dictionary<int, string> data;
+    private Dictionary<int, string> data2;
+    private int counter = 0;
+    private string item = "";
+    private string item2 = "";
+
+    private string? _search;
+    private string? search
+    {
+        get
+        {
+            return _search;
+        }
+        set
+        {
+            if (string.IsNullOrEmpty(value.Trim()))
+            {
+                _search = value?.Trim();
+            }
+            else
+            {
+                _search = value;
+            }
+
+            Searching();
+        }
+    }
+    private bool isSearching => string.IsNullOrEmpty(search) ? false : true;
+    private int contentEditableId = -1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        data = new Dictionary<int, string>();
+        data2 = new Dictionary<int, string>();
+    }
+
+    private void AddNew()
+    {
+        data.Add(counter, item);
+        item = "";
+        counter++;
+    }
+
+    private bool IsContentEditable(int id) => (id == contentEditableId) ? true : false;
+    private void Remove(int id)
+    {
+        data.Remove(id);
+
+        if (isSearching) data2.Remove(id);
+    }
+
+    private void Searching()
+    {
+        data2.Clear();
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            foreach (var t in data)
+            {
+                if (t.Value.Contains(search, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    data2.Add(t.Key, t.Value);
+                }
+            }
+        }
+    }
+
+    private void Edit(int id)
+    {
+        contentEditableId = id;
+        item2 = data[id];
+    }
+
+    private void Save(int id)
+    {
+        data[id] = item2;
+
+        if (isSearching) data2[id] = item2;
+
+        Cancel();
+    }
+
+    private void Cancel()
+    {
+        contentEditableId = -1;
+        item2 = "";
+    }
+}
