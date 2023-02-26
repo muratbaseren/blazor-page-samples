@@ -1,0 +1,23 @@
+﻿<div class="btn-group" role="group">
+    <button type="button" class="btn dropdown-toggle btn-sm @(CurrentColor != "" ? "text-white": "")" data-bs-toggle="dropdown">
+        <i class="fa-solid fa-palette"></i>
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="javascript:void(0)" @onclick="@(async () => await ColorChanged.InvokeAsync(string.Empty))">None</a></li>
+        <li><a class="dropdown-item text-primary" href="javascript:void(0)" @onclick="@(async () => await ColorChanged.InvokeAsync("primary"))">Blue</a></li>
+        <li><a class="dropdown-item text-secondary" href="javascript:void(0)" @onclick="@(async () => await ColorChanged.InvokeAsync("secondary"))">Gray</a></li>
+        <li><a class="dropdown-item text-success" href="javascript:void(0)" @onclick="@(async () => await ColorChanged.InvokeAsync("success"))">Green</a></li>
+        <li><a class="dropdown-item text-danger" href="javascript:void(0)" @onclick="@(async () => await ColorChanged.InvokeAsync("danger"))">Red</a></li>
+        <li><a class="dropdown-item text-warning" href="javascript:void(0)" @onclick="@(async () => await ColorChanged.InvokeAsync("warning"))">Yellow</a></li>
+        <li><a class="dropdown-item text-info" href="javascript:void(0)" @onclick="@(async () => await ColorChanged.InvokeAsync("info"))">Aqua</a></li>
+        <li><a class="dropdown-item text-dark" href="javascript:void(0)" @onclick="@(async () => await ColorChanged.InvokeAsync("dark"))">Black</a></li>
+    </ul>
+</div>
+
+@code {
+    [Parameter]
+    public string CurrentColor { get; set; }
+
+    [Parameter]
+    public EventCallback<string> ColorChanged { get; set; }
+}

@@ -1,0 +1,17 @@
+﻿<div class="btn-group" role="group">
+    <button type="button" class="btn dropdown-toggle btn-sm @(CurrentColor != "" ? "text-white": "")" data-bs-toggle="dropdown">
+        <i class="fa-solid fa-edit"></i>
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="javascript:void(0)" @onclick="@(async () => await EditAction.InvokeAsync("edit"))">Edit</a></li>
+        <li><a class="dropdown-item text-danger" href="javascript:void(0)" @onclick="@(async () => await EditAction.InvokeAsync("delete"))">Remove</a></li>
+    </ul>
+</div>
+
+@code {
+    [Parameter]
+    public string CurrentColor { get; set; }
+
+    [Parameter]
+    public EventCallback<string> EditAction { get; set; }
+}
